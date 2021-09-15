@@ -3,15 +3,23 @@ package com.pingak9.nativepopup;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
+import android.view.View;
 import android.widget.DatePicker;
+import android.widget.ScrollView;
 import android.widget.TimePicker;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.unity3d.player.UnityPlayer;
 
 import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.support.v4.content.ContextCompat.getSystemService;
 
 /**
  * Created by PingAK9
@@ -82,10 +90,38 @@ public class Bridge {
 
     public static void ShowDialogInfo(String title, String message, String ok) {
         DismissCurrentAlert();
-        alertDialog = new AlertDialog.Builder(UnityPlayer.currentActivity).create(); //Read Update
-        alertDialog.setTitle(title);
-        alertDialog.setMessage(message);
 
+        // https://stackoverflow.com/questions/7197939/copy-text-from-android-alertdialog
+        // The TextView to show your Text
+        TextView showText = new TextView(UnityPlayer.currentActivity);
+        showText.setText(message);
+// Add the Listener
+        showText.setOnLongClickListener(new View.OnLongClickListener() {
+
+            @Override
+            public boolean onLongClick(View v) {
+                // Copy the Text to the clipboard
+                ClipboardManager manager =
+                        (ClipboardManager) v.getContext().getSystemService(CLIPBOARD_SERVICE);
+                TextView showTextParam = (TextView) v;
+                manager.setText( showTextParam.getText());
+                // Show a message:
+                Toast.makeText(v.getContext(), "Text in clipboard",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                return true;
+            }
+        });
+
+        ScrollView scrollView = new ScrollView(UnityPlayer.currentActivity);
+        scrollView.addView(showText);
+
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(UnityPlayer.currentActivity); //Read Update
+        builder.setView(scrollView);
+
+        alertDialog = builder.create();
+        alertDialog.setTitle(title);
         alertDialog.setButton(ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 UnityPlayer.UnitySendMessage("MobileDialogInfo", "OnOkCallBack", "0");
