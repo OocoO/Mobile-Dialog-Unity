@@ -5,6 +5,9 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ScrollView;
@@ -94,7 +97,7 @@ public class Bridge {
         // https://stackoverflow.com/questions/7197939/copy-text-from-android-alertdialog
         // The TextView to show your Text
         TextView showText = new TextView(UnityPlayer.currentActivity);
-        showText.setText(message);
+        showText.setText(Html.fromHtml(message));
 // Add the Listener
         showText.setOnLongClickListener(new View.OnLongClickListener() {
 
@@ -112,6 +115,35 @@ public class Bridge {
                 return true;
             }
         });
+
+        ScrollView scrollView = new ScrollView(UnityPlayer.currentActivity);
+        scrollView.addView(showText);
+
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(UnityPlayer.currentActivity); //Read Update
+        builder.setView(scrollView);
+
+        alertDialog = builder.create();
+        alertDialog.setTitle(title);
+        alertDialog.setButton(ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                UnityPlayer.UnitySendMessage("MobileDialogInfo", "OnOkCallBack", "0");
+            }
+        });
+
+
+        alertDialog.show();
+    }
+
+    public static void ShowDialogInfoClickable(String title, String message, String ok) {
+        DismissCurrentAlert();
+
+        // https://stackoverflow.com/questions/7197939/copy-text-from-android-alertdialog
+        // The TextView to show your Text
+        TextView showText = new TextView(UnityPlayer.currentActivity);
+        showText.setText(Html.fromHtml(message));
+// Add the Listener
+        showText.setMovementMethod(LinkMovementMethod.getInstance());
 
         ScrollView scrollView = new ScrollView(UnityPlayer.currentActivity);
         scrollView.addView(showText);
