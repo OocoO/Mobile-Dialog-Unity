@@ -151,6 +151,7 @@ public class Bridge {
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(UnityPlayer.currentActivity); //Read Update
         builder.setView(scrollView);
+        builder.setCancelable(false);
 
         alertDialog = builder.create();
         alertDialog.setTitle(title);
@@ -159,7 +160,6 @@ public class Bridge {
                 UnityPlayer.UnitySendMessage("MobileDialogInfo", "OnOkCallBack", "0");
             }
         });
-
 
         alertDialog.show();
     }
